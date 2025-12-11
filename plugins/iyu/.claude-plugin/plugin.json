@@ -1,0 +1,10 @@
+{
+  "name": "iyu",
+  "version": "1.0.0",
+  "description": "iyulab's productivity plugins for library maintainers and developers",
+  "author": {
+    "name": "iyulab",
+    "url": "https://github.com/iyulab"
+  },
+  "keywords": ["issue", "triage", "opensource", "maintainer", "library", "iyulab"]
+}

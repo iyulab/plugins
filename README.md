@@ -1,4 +1,4 @@
-# IYULab Claude Code Plugins
+# Iyulab Claude Code Plugins
 
 A collection of Claude Code plugins for library maintainers and developers.
 
@@ -11,34 +11,51 @@ A collection of Claude Code plugins for library maintainers and developers.
 # List available plugins
 /plugin list
 
-# Install a specific plugin
-/plugin install issue-triage@iyulab-plugins
+# Install the iyu plugin
+/plugin install iyu@iyulab-plugins
 ```
 
 ## Available Plugins
 
-### issue-triage
+### iyu
 
-**Systematic issue evaluation workflow for library maintainers**
+**Iyulab's productivity toolkit for library maintainers and developers**
 
-Evaluate external issues against your project's philosophy and scope with a structured 7-phase workflow.
+A collection of commands for issue triage, workflow automation, and developer tools.
 
 ```bash
-/plugin install issue-triage@iyulab-plugins
+/plugin install iyu@iyulab-plugins
+```
 
-# Usage
-/issue https://github.com/user/repo/issues/123
-/issue ./docs/feature-request.md
+#### Commands
+
+| Command | Description |
+|---------|-------------|
+| `/iyu:issue` | Systematic issue evaluation with 7-phase workflow |
+
+#### /iyu:issue
+
+Evaluate external issues against your project's philosophy and scope.
+
+```bash
+# Triage a GitHub issue
+/iyu:issue https://github.com/user/repo/issues/123
+
+# Triage a local document
+/iyu:issue ./docs/feature-request.md
+
+# Triage from text
+/iyu:issue "User requests adding feature X..."
 ```
 
 **Features**:
 - Philosophy alignment scoring (1-5)
 - Feasibility assessment
 - 5-tier decision matrix (Accept/Adapt/Defer/Redirect/Decline)
-- Automatic knowledge capture
+- Knowledge capture for project learning
 - Professional response draft generation
 
-[Read more](./plugins/issue-triage/README.md)
+[Read more](./plugins/iyu/README.md)
 
 ## Philosophy
 
@@ -73,4 +90,4 @@ MIT - See [LICENSE](./LICENSE) for details.
 
 - [Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code)
 - [Plugin Development Guide](https://docs.anthropic.com/en/docs/claude-code/plugins)
-- [IYULab GitHub](https://github.com/iyulab)
+- [Iyulab GitHub](https://github.com/iyulab)
