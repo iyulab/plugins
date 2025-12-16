@@ -2,7 +2,7 @@
 
 [![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet?logo=anthropic&logoColor=white)](https://docs.anthropic.com/en/docs/claude-code/plugins)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](./plugin.json)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](./plugin.json)
 
 Iyulab's productivity toolkit for library maintainers and developers.
 
@@ -10,11 +10,13 @@ Iyulab's productivity toolkit for library maintainers and developers.
 
 **"Every issue is an opportunity"** - This plugin helps you move beyond simple accept/reject decisions to find the best path forward for your project.
 
+**"Fix N, Prevent M"** - When resolving a bug (N), automatically detect and fix similar latent defects (M) across your codebase.
+
 ## Installation
 
 ```bash
 # Add the marketplace
-/plugin marketplace add iyulab/plugins
+/plugin marketplace add iyulab/claude-plugins
 
 # Install the plugin
 /plugin install iyu@iyulab-plugins
@@ -22,13 +24,28 @@ Iyulab's productivity toolkit for library maintainers and developers.
 
 ## Features
 
-This plugin provides three ways to help with issue triage:
+This plugin provides comprehensive issue triage and bug resolution:
 
 | Component | Type | Activation | Use Case |
 |-----------|------|------------|----------|
 | **Issue Triage** | Skill | Automatic | Conversational issue analysis and advice |
 | `/iyu:issue` | Command | Manual | Full formatted triage report |
 | **Issue Analyzer** | Agent | Automatic | Autonomous issue analysis |
+
+### New in v1.2.0: Deep Bug Resolution
+
+When an issue is detected as a bug, the plugin automatically:
+
+1. **Root Cause Analysis** - Goes beyond symptoms to find the true underlying cause
+2. **Similar Pattern Detection** - Finds all similar code patterns that may have latent defects
+3. **Solution Research** - Researches best practices and latest methods for complex bugs
+
+| Feature | Trigger | Output |
+|---------|---------|--------|
+| Bug Detection | Auto (labels, keywords, patterns) | BUG / FEATURE_REQUEST / ENHANCEMENT |
+| Root Cause Analysis | Bug detected | Hypothesis tree, cause chain |
+| Pattern Detection | Bug detected | Risk-rated pattern list (Critical/High/Medium/Low) |
+| Solution Research | Complex bug detected | Best practices with sources |
 
 ## Skills (Auto-Activated)
 
@@ -42,6 +59,9 @@ The plugin automatically activates when you discuss issue evaluation. Just ask n
 - "Evaluate this GitHub issue for me"
 - "Help me triage this pull request"
 - "Decline this request appropriately"
+- "Find similar bugs in the codebase"
+- "Do a root cause analysis on this bug"
+- "Fix this bug comprehensively"
 
 Claude will automatically apply the triage framework:
 1. Understand the request (surface vs. underlying need)
@@ -78,11 +98,14 @@ Use this command when you need a complete, structured triage report.
 # Triage a GitHub/GitLab issue
 /iyu:issue https://github.com/user/repo/issues/123
 
-# Quick decision only (skip execution phases)
+# Quick decision only (skip deep analysis phases)
 /iyu:issue https://github.com/user/repo/issues/123 --quick
 
 # Triage and save report to file
 /iyu:issue ./docs/feature-request.md --save
+
+# Skip web research even for complex bugs
+/iyu:issue https://github.com/user/repo/issues/123 --no-research
 
 # Triage from pasted text
 /iyu:issue "User requests adding feature X..."
@@ -91,8 +114,15 @@ Use this command when you need a complete, structured triage report.
 **Workflow**:
 
 ```
-INTAKE -> PHILOSOPHY -> FEASIBILITY -> DECISION -> EXECUTION -> KNOWLEDGE -> RESPONSE
+INTAKE -> [BUG DETECTION] -> [ROOT CAUSE] -> [PATTERN DETECTION] -> [RESEARCH]
+       -> PHILOSOPHY -> FEASIBILITY -> DECISION -> EXECUTION -> KNOWLEDGE -> RESPONSE
 ```
+
+Phases in brackets are conditionally executed:
+- `BUG DETECTION`: Auto-classifies issue type
+- `ROOT CAUSE`: Only for bugs (High/Medium confidence)
+- `PATTERN DETECTION`: Only for bugs - finds similar code patterns
+- `RESEARCH`: Only for complex bugs (5+ files, unfamiliar territory, etc.)
 
 **Decision Matrix**:
 
@@ -164,7 +194,9 @@ iyu/
 │       ├── references/
 │       │   ├── decision-examples.md
 │       │   ├── response-templates.md
-│       │   └── philosophy-alignment-guide.md
+│       │   ├── philosophy-alignment-guide.md
+│       │   ├── pattern-detection-guide.md      # NEW in v1.2.0
+│       │   └── research-methodology.md         # NEW in v1.2.0
 │       └── examples/
 │           ├── sample-triage-accept.md
 │           ├── sample-triage-adapt.md

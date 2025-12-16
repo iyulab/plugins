@@ -1,7 +1,7 @@
 ---
 description: Triage external issues with critical evaluation against project philosophy and scope
-argument-hint: <issue-url | file-path | "issue text"> [--quick] [--save]
-allowed-tools: Read, Glob, Grep, Write, Edit, TodoWrite, WebFetch
+argument-hint: <issue-url | file-path | "issue text"> [--quick] [--save] [--no-research]
+allowed-tools: Read, Glob, Grep, Write, Edit, TodoWrite, WebFetch, WebSearch
 ---
 
 # Issue Triage Command
@@ -32,8 +32,9 @@ The user will provide one of:
 - **Quoted text**: `"User requests adding feature X..."`
 
 **Optional flags**:
-- `--quick`: Skip phases 5-6, focus on decision only
+- `--quick`: Skip phases 5-8, focus on decision only
 - `--save`: Save report to `./claudedocs/triage-[date]-[title].md`
+- `--no-research`: Skip web research even for complex bugs
 
 ### Input Detection Logic
 
@@ -109,6 +110,228 @@ JOB TO BE DONE
 - Why blocked: [why current capabilities don't suffice]
 - Frequency: [Common need / Edge case / Unknown]
 - Prevention: [what would have prevented this request?]
+```
+
+---
+
+### PHASE 1.5: BUG/ISSUE CLASSIFICATION
+
+**Objective**: Automatically detect if this is a bug/error that requires deep resolution analysis.
+
+**Bug Detection Signals** (check for presence):
+- **Labels**: `bug`, `error`, `fix`, `defect`, `regression`, `crash`, `exception`
+- **Title keywords**: "error", "bug", "fix", "broken", "fail", "crash", "exception", "not working", "issue with"
+- **Content patterns**: Stack traces, error messages, "expected vs actual", reproduction steps
+- **Severity indicators**: "critical", "urgent", "blocking", "production"
+
+**Classification Output**:
+```
+ISSUE CLASSIFICATION
++------------------+------------------------------------------------+
+| Type             | [BUG / FEATURE_REQUEST / ENHANCEMENT / OTHER]  |
+| Bug Confidence   | [High / Medium / Low / N/A]                    |
+| Detection Reason | [What signals triggered this classification]   |
++------------------+------------------------------------------------+
+| Deep Analysis    | [ENABLED / DISABLED] - [reason]                |
++------------------+------------------------------------------------+
+```
+
+**Routing Logic**:
+- If `Type = BUG` with `High/Medium Confidence` → Continue to PHASE 1.6 (Root Cause Deep Analysis)
+- Otherwise → Skip to PHASE 2 (Philosophy Alignment)
+
+---
+
+### PHASE 1.6: ROOT CAUSE DEEP ANALYSIS (Bug Resolution Only)
+
+**Objective**: Go beyond symptoms to identify the true underlying cause.
+
+**Actions**:
+1. **Symptom Isolation**: Clearly separate what user reports from what's actually happening
+2. **Hypothesis Generation**: Form multiple possible root causes
+3. **Evidence Gathering**: Use Grep/Glob/Read to investigate codebase
+4. **Cause Chain Analysis**: Trace the symptom back through layers
+
+**Analysis Framework**:
+```
+ROOT CAUSE ANALYSIS
++------------------+------------------------------------------------+
+| Reported Symptom | [What user describes]                          |
+| Actual Behavior  | [What's technically happening]                 |
+| Expected Behavior| [What should happen]                           |
++------------------+------------------------------------------------+
+
+HYPOTHESIS TREE
+├─ Hypothesis 1: [Possible cause]
+│  ├─ Evidence For: [Supporting findings]
+│  ├─ Evidence Against: [Contradicting findings]
+│  └─ Confidence: [High/Medium/Low]
+├─ Hypothesis 2: [Possible cause]
+│  ├─ Evidence For: [Supporting findings]
+│  ├─ Evidence Against: [Contradicting findings]
+│  └─ Confidence: [High/Medium/Low]
+└─ ...
+
+IDENTIFIED ROOT CAUSE
++------------------+------------------------------------------------+
+| Root Cause       | [The actual underlying problem]                |
+| Confidence       | [High / Medium / Low]                          |
+| Evidence         | [Key findings supporting this conclusion]      |
+| Location         | [file:line or component]                       |
++------------------+------------------------------------------------+
+
+CAUSE CHAIN
+[User Action] → [Component A] → [Component B] → [ROOT CAUSE] → [Symptom]
+```
+
+---
+
+### PHASE 1.7: SIMILAR PATTERN DETECTION (Bug Resolution Only)
+
+**Objective**: Find all similar patterns in codebase that may have the same latent defect.
+
+**Actions**:
+1. **Pattern Extraction**: Extract the problematic code pattern from root cause
+2. **Code Pattern Search**: Use Grep/Glob to find syntactically similar code
+3. **Semantic Search**: Find functionally similar logic even with different syntax
+4. **Risk Assessment**: Evaluate each found pattern for potential defects
+
+**Search Strategies**:
+
+1. **Syntactic Pattern Search**:
+   - Same function/method names
+   - Same API usage patterns
+   - Similar error handling (or lack thereof)
+   - Same library/dependency usage
+
+2. **Semantic Pattern Search**:
+   - Similar business logic flow
+   - Same data transformation patterns
+   - Parallel code paths (e.g., other endpoints, other handlers)
+   - Copy-pasted code variations
+
+3. **Architectural Pattern Search**:
+   - Same layer violations
+   - Similar coupling patterns
+   - Repeated anti-patterns
+
+**Risk Scoring Criteria**:
+| Risk Level | Criteria |
+|------------|----------|
+| 🔴 Critical | Same exact pattern, likely same bug |
+| 🟠 High | Very similar pattern, high probability of latent defect |
+| 🟡 Medium | Related pattern, should be reviewed |
+| 🟢 Low | Loosely related, monitor only |
+
+**Output**:
+```
+SIMILAR PATTERN ANALYSIS
++------------------+------------------------------------------------+
+| Root Cause Pattern | [Description of the problematic pattern]     |
+| Search Scope     | [Directories/files analyzed]                   |
+| Patterns Found   | [N total matches]                              |
++------------------+------------------------------------------------+
+
+DETECTED PATTERNS
++------+----------+------------------+--------------------------------+
+| Risk | Location | Pattern Match    | Assessment                     |
++------+----------+------------------+--------------------------------+
+| 🔴   | [file:ln]| [pattern desc]   | [why this is critical risk]    |
+| 🟠   | [file:ln]| [pattern desc]   | [why this is high risk]        |
+| 🟡   | [file:ln]| [pattern desc]   | [why this needs review]        |
+| 🟢   | [file:ln]| [pattern desc]   | [why this is low concern]      |
++------+----------+------------------+--------------------------------+
+
+AGGREGATE RISK ASSESSMENT
++------------------+------------------------------------------------+
+| Critical (🔴)    | [count] patterns - IMMEDIATE ACTION REQUIRED   |
+| High (🟠)        | [count] patterns - Address in this fix         |
+| Medium (🟡)      | [count] patterns - Schedule review             |
+| Low (🟢)         | [count] patterns - Monitor                     |
++------------------+------------------------------------------------+
+| Recommendation   | [Fix N only / Fix N+M / Comprehensive refactor]|
++------------------+------------------------------------------------+
+
+PREVENTIVE FIXES
+For each Critical/High risk pattern:
+- [file:line]: [Specific fix recommendation]
+- [file:line]: [Specific fix recommendation]
+```
+
+---
+
+### PHASE 1.8: SOLUTION RESEARCH (Complex Bugs Only)
+
+**Objective**: Research latest methods, best practices, and proven solutions for complex issues.
+
+**Complexity Triggers** (auto-research if ANY):
+- Technical Complexity: Affects 5+ files OR requires architectural changes
+- Unfamiliar Territory: <3 similar patterns in codebase (new problem space)
+- Explicit Request: Issue mentions "best practice", "latest", "modern approach", "recommended way"
+- External Dependency: Involves third-party library/API behavior
+- Security/Performance: Security vulnerability or performance-critical fix
+
+**Skip if**: `--no-research` flag OR `--quick` flag OR none of complexity triggers met
+
+**Research Strategy**:
+
+1. **Query Formulation**:
+   - "[technology] [problem type] best practices 2024"
+   - "[error type] root cause and fix"
+   - "[pattern name] alternatives modern approach"
+   - "[library name] [specific issue] solution"
+
+2. **Source Priority**:
+   - Official documentation
+   - GitHub issues/discussions on related projects
+   - Stack Overflow accepted answers (recent)
+   - Technical blogs from recognized experts
+   - Security advisories (if security-related)
+
+3. **Tool Selection**:
+   - Try Tavily MCP first (if available): More structured results
+   - Fallback to WebSearch: Built-in capability
+
+**Output**:
+```
+SOLUTION RESEARCH
++------------------+------------------------------------------------+
+| Research Trigger | [Why research was initiated]                   |
+| Query Used       | [Search query]                                 |
+| Sources Checked  | [N sources]                                    |
++------------------+------------------------------------------------+
+
+FINDINGS
++----------------------+----------------------------------------------+
+| Best Practice        | [Recommended approach from authoritative src]|
+| Source               | [URL or reference]                           |
+| Applicability        | [High/Medium/Low] - [why]                    |
++----------------------+----------------------------------------------+
+| Alternative 1        | [Another valid approach]                     |
+| Source               | [URL or reference]                           |
+| Trade-offs           | [Pros and cons vs best practice]             |
++----------------------+----------------------------------------------+
+| Alternative 2        | [If applicable]                              |
+| ...                  |                                              |
++----------------------+----------------------------------------------+
+
+SECURITY CONSIDERATIONS (if applicable)
+- [Security finding 1]
+- [Security finding 2]
+
+RECOMMENDED APPROACH
++------------------+------------------------------------------------+
+| Recommendation   | [Specific approach to use]                     |
+| Rationale        | [Why this is best for this context]            |
+| Implementation   | [High-level steps]                             |
+| References       | [Key URLs for implementation details]          |
++------------------+------------------------------------------------+
+```
+
+**If Research Skipped**:
+```
+SOLUTION RESEARCH: Skipped
+- Reason: [--no-research flag / --quick flag / Low complexity]
 ```
 
 ---
@@ -405,6 +628,21 @@ Source: [URL / file path / "direct input"]
 [PHASE 1: ISSUE INTAKE]
 [formatted output with Root Cause and Mental Model]
 
+[PHASE 1.5: BUG/ISSUE CLASSIFICATION]
+[Type, Bug Confidence, Detection Reason, Deep Analysis status]
+
+[PHASE 1.6: ROOT CAUSE DEEP ANALYSIS] (if bug detected)
+[Hypothesis tree, identified root cause, cause chain]
+- Or "Skipped - Not a bug/error issue"
+
+[PHASE 1.7: SIMILAR PATTERN DETECTION] (if bug detected)
+[Detected patterns table with risk levels, aggregate assessment]
+- Or "Skipped - Not a bug/error issue"
+
+[PHASE 1.8: SOLUTION RESEARCH] (if complex bug)
+[Research findings, best practices, recommended approach]
+- Or "Skipped - [reason]"
+
 [PHASE 2: PHILOSOPHY ALIGNMENT]
 [formatted output]
 
@@ -437,6 +675,8 @@ Source: [URL / file path / "direct input"]
 - [ ] Create follow-up tasks (if ACCEPT/ADAPT)
 - [ ] Address identified gaps (documentation, API, examples)
 - [ ] Implement preventive actions
+- [ ] Fix critical/high risk patterns (if bug with patterns detected)
+- [ ] Schedule review for medium risk patterns
 ================================================================
 ```
 

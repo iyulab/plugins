@@ -1,6 +1,6 @@
 ---
 name: Issue Triage
-description: This skill should be used when the user asks to "triage an issue", "evaluate a feature request", "should I accept this issue", "analyze GitHub issue", "review this pull request scope", "is this in scope", "how should I respond to this issue", "decline this request", "accept this contribution", or discusses whether to accept, reject, adapt, defer, or redirect an external contribution to a project.
+description: This skill should be used when the user asks to "triage an issue", "evaluate a feature request", "should I accept this issue", "analyze GitHub issue", "review this pull request scope", "is this in scope", "how should I respond to this issue", "decline this request", "accept this contribution", "find similar bugs", "detect patterns", "root cause analysis", "fix this bug comprehensively", or discusses whether to accept, reject, adapt, defer, or redirect an external contribution to a project.
 ---
 
 # Issue Triage Framework
@@ -183,6 +183,76 @@ After each significant triage:
 3. Consider ADR (Architecture Decision Record) for major decisions
 4. Document discovered gaps and improvement opportunities
 5. Track patterns for future strategic planning
+
+## Deep Bug Resolution (When Issue is a Bug)
+
+When an issue is identified as a bug/error, apply **Deep Resolution Analysis** to fix not just the reported issue (N), but also discover and prevent similar latent defects (M).
+
+### Bug Detection Signals
+
+Automatically classify as bug when:
+- **Labels**: `bug`, `error`, `fix`, `defect`, `regression`, `crash`, `exception`
+- **Keywords**: "error", "broken", "fail", "crash", "not working", "exception"
+- **Patterns**: Stack traces, error messages, "expected vs actual"
+
+### Root Cause Analysis
+
+Go beyond symptoms:
+
+1. **Symptom vs. Cause**: What user reports ≠ what's broken
+2. **Hypothesis Tree**: Generate multiple possible causes, gather evidence for each
+3. **Cause Chain**: Trace `[Action] → [Component] → [ROOT CAUSE] → [Symptom]`
+
+**Critical Questions**:
+- Why did this fail NOW? What changed?
+- What assumption was violated?
+- Where else might this assumption be violated?
+
+### Similar Pattern Detection
+
+After identifying root cause, find ALL similar patterns:
+
+**Search Strategies**:
+1. **Syntactic**: Same function names, API patterns, error handling
+2. **Semantic**: Similar logic flow, data transformations, parallel code paths
+3. **Architectural**: Same layer violations, coupling patterns, anti-patterns
+
+**Risk Classification**:
+| Risk | Meaning |
+|------|---------|
+| 🔴 Critical | Same bug, different location |
+| 🟠 High | Very likely has same latent defect |
+| 🟡 Medium | Should be reviewed |
+| 🟢 Low | Monitor only |
+
+**Output**: Table of `[Risk] [Location] [Pattern] [Assessment]`
+
+### Solution Research (Complex Bugs)
+
+Auto-trigger research when:
+- Affects 5+ files or requires architectural changes
+- <3 similar patterns exist (unfamiliar territory)
+- Issue mentions "best practice", "latest", "modern approach"
+- Involves third-party library/API
+- Security or performance critical
+
+**Research Strategy**:
+- Query: "[technology] [problem] best practices [current year]"
+- Sources: Official docs → GitHub issues → Stack Overflow → Expert blogs
+- Tool: Try Tavily MCP first, fallback to WebSearch
+
+### Comprehensive Fix Approach
+
+Instead of fixing just N:
+1. Fix the reported issue (N)
+2. Fix all Critical (🔴) patterns immediately
+3. Include High (🟠) patterns in the same fix
+4. Schedule Medium (🟡) patterns for follow-up
+5. Document the pattern to prevent recurrence
+
+For detailed methodology, see:
+- **`references/pattern-detection-guide.md`** - Complete pattern detection methodology
+- **`references/research-methodology.md`** - Web research best practices
 
 ## Additional Resources
 

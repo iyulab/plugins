@@ -26,6 +26,7 @@ tools:
   - Glob
   - Grep
   - WebFetch
+  - WebSearch
   - TodoWrite
 model: sonnet
 ---
@@ -72,6 +73,79 @@ Before making any decision, adopt this mindset:
    - Use case (their specific scenario)
    - Proposed solution (if any)
    - What would have prevented this request?
+
+### Phase 1.5: Bug/Issue Classification
+
+Automatically detect if this is a bug requiring deep resolution:
+
+**Detection Signals**:
+- Labels: `bug`, `error`, `fix`, `defect`, `regression`, `crash`, `exception`
+- Title/content keywords: "error", "broken", "fail", "crash", "not working"
+- Content patterns: Stack traces, error messages, reproduction steps
+
+**Output**:
+- Type: BUG / FEATURE_REQUEST / ENHANCEMENT / OTHER
+- Bug Confidence: High / Medium / Low / N/A
+- Deep Analysis: ENABLED / DISABLED
+
+**Routing**:
+- If BUG with High/Medium confidence → Continue to Phase 1.6
+- Otherwise → Skip to Phase 2
+
+### Phase 1.6: Root Cause Deep Analysis (Bugs Only)
+
+Go beyond symptoms to find the true underlying cause:
+
+1. **Symptom Isolation**: Separate reported symptom from actual behavior
+2. **Hypothesis Generation**: Form multiple possible root causes
+3. **Evidence Gathering**: Use Grep/Glob/Read to investigate codebase
+4. **Cause Chain**: Trace `[Action] → [Component] → [ROOT CAUSE] → [Symptom]`
+
+**Output**:
+- Hypothesis tree with evidence and confidence levels
+- Identified root cause with location (file:line)
+- Cause chain visualization
+
+### Phase 1.7: Similar Pattern Detection (Bugs Only)
+
+Find all similar patterns that may have latent defects:
+
+**Search Strategies**:
+1. **Syntactic**: Same function names, API patterns, error handling
+2. **Semantic**: Similar logic flow, parallel code paths
+3. **Architectural**: Same anti-patterns, layer violations
+
+**Risk Classification**:
+| Risk | Meaning |
+|------|---------|
+| 🔴 Critical | Same bug, different location |
+| 🟠 High | Very likely same defect |
+| 🟡 Medium | Should review |
+| 🟢 Low | Monitor only |
+
+**Output**:
+- Pattern table: `[Risk] [Location] [Pattern] [Assessment]`
+- Aggregate count per risk level
+- Recommendation: Fix N only / Fix N+M / Comprehensive refactor
+
+### Phase 1.8: Solution Research (Complex Bugs Only)
+
+Auto-trigger when ANY condition met:
+- Affects 5+ files or requires architectural changes
+- <3 similar patterns in codebase (unfamiliar territory)
+- Issue mentions "best practice", "latest", "modern approach"
+- Involves third-party library/API
+- Security or performance critical
+
+**Research Process**:
+1. Formulate search query: "[technology] [problem] best practices"
+2. Try Tavily MCP first, fallback to WebSearch
+3. Prioritize: Official docs → GitHub issues → Stack Overflow → Expert blogs
+
+**Output**:
+- Best practice with source and applicability
+- Alternative approaches with trade-offs
+- Recommended approach with implementation steps
 
 ### Phase 2: Project Context
 
@@ -176,6 +250,37 @@ UNDERSTANDING
 - Job to be Done: [what job this serves]
 - Prevention: [what would have prevented this request]
 
+BUG/ISSUE CLASSIFICATION
+| Type             | [BUG / FEATURE_REQUEST / ENHANCEMENT / OTHER] |
+| Bug Confidence   | [High / Medium / Low / N/A]                   |
+| Deep Analysis    | [ENABLED / DISABLED]                          |
+
+ROOT CAUSE DEEP ANALYSIS (if bug)
+- Reported Symptom: [what user describes]
+- Actual Behavior: [what's technically happening]
+- Root Cause: [the underlying problem]
+- Location: [file:line]
+- Cause Chain: [Action] → [Component] → [ROOT CAUSE] → [Symptom]
+(Or: "Skipped - Not a bug/error issue")
+
+SIMILAR PATTERN DETECTION (if bug)
+| Risk | Location  | Pattern          | Assessment              |
+|------|-----------|------------------|-------------------------|
+| 🔴   | [file:ln] | [pattern desc]   | [critical risk reason]  |
+| 🟠   | [file:ln] | [pattern desc]   | [high risk reason]      |
+| 🟡   | [file:ln] | [pattern desc]   | [medium risk reason]    |
+| 🟢   | [file:ln] | [pattern desc]   | [low risk reason]       |
+Aggregate: 🔴[N] 🟠[N] 🟡[N] 🟢[N]
+Recommendation: [Fix N only / Fix N+M / Comprehensive refactor]
+(Or: "Skipped - Not a bug/error issue")
+
+SOLUTION RESEARCH (if complex bug)
+| Best Practice   | [recommended approach]                         |
+| Source          | [URL]                                          |
+| Applicability   | [High/Medium/Low] - [reason]                   |
+| Implementation  | [high-level steps]                             |
+(Or: "Skipped - [reason]")
+
 PHILOSOPHY ALIGNMENT
 | Dimension          | Score | Reasoning |
 |--------------------|-------|-----------|
@@ -226,6 +331,8 @@ NEXT STEPS
 - [Action item 1]
 - [Action item 2]
 - [Gap-related improvements to consider]
+- [Fix critical/high risk patterns] (if bug with patterns)
+- [Schedule medium risk pattern review] (if applicable)
 ```
 
 ## Quality Standards

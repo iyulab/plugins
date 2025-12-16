@@ -8,19 +8,19 @@
   "metadata": {
     "description": "Iyulab's Claude Code plugins for library maintainers and developers",
     "version": "1.1.0",
-    "homepage": "https://github.com/iyulab/plugins",
+    "homepage": "https://github.com/iyulab/claude-plugins",
     "license": "MIT"
   },
   "plugins": [
     {
       "name": "iyu",
       "source": "./plugins/iyu",
-      "description": "Iyulab's productivity toolkit with auto-activating skills and commands for issue triage, workflow automation, and developer tools",
-      "version": "1.1.0",
+      "description": "Iyulab's productivity toolkit for issue triage with deep bug resolution - includes pattern detection, root cause analysis, and automated solution research",
+      "version": "1.2.0",
       "author": {
         "name": "iyulab"
       },
-      "keywords": ["issue", "triage", "opensource", "maintainer", "library", "workflow", "iyulab"]
+      "keywords": ["issue", "triage", "opensource", "maintainer", "library", "bug", "pattern-detection", "root-cause", "research", "iyulab"]
     }
   ]
 }

@@ -2,7 +2,7 @@
 
 [![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet?logo=anthropic&logoColor=white)](https://docs.anthropic.com/en/docs/claude-code/plugins)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub](https://img.shields.io/badge/GitHub-iyulab%2Fplugins-blue?logo=github)](https://github.com/iyulab/plugins)
+[![GitHub](https://img.shields.io/badge/GitHub-iyulab%2Fclaude--plugins-blue?logo=github)](https://github.com/iyulab/claude-plugins)
 
 A collection of Claude Code plugins for library maintainers and developers.
 
@@ -10,7 +10,7 @@ A collection of Claude Code plugins for library maintainers and developers.
 
 ```bash
 # Add the marketplace
-/plugin marketplace add iyulab/plugins
+/plugin marketplace add iyulab/claude-plugins
 
 # Install the iyu plugin
 /plugin install iyu@iyulab-plugins

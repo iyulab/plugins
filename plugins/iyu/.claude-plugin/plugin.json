@@ -1,10 +1,10 @@
 {
   "name": "iyu",
-  "version": "1.1.0",
-  "description": "iyulab's productivity plugins for library maintainers and developers",
+  "version": "1.2.0",
+  "description": "iyulab's productivity toolkit for library maintainers - issue triage, deep bug resolution with pattern detection, and automated solution research",
   "author": {
     "name": "iyulab",
     "url": "https://github.com/iyulab"
   },
-  "keywords": ["issue", "triage", "opensource", "maintainer", "library", "iyulab"]
+  "keywords": ["issue", "triage", "opensource", "maintainer", "library", "bug", "pattern-detection", "root-cause", "research", "iyulab"]
 }
