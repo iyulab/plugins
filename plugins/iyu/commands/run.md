@@ -6,9 +6,9 @@ allowed-tools: Read, Glob, Grep, Write, Edit, TodoWrite, WebFetch, WebSearch, Ba
 
 # Development Phase Runner
 
-Autonomous agent for roadmap-driven or input-driven development with planning, execution, review, and cleanup.
+Execute development tasks based on roadmap or input.
 
-## Core Philosophy
+## Philosophy
 
 **"Roadmap-driven, philosophy-aligned"** - Trace changes to planned work, align with project principles.
 
@@ -16,16 +16,19 @@ Autonomous agent for roadmap-driven or input-driven development with planning, e
 
 **"No tech debt"** - Complete implementations only. Partial = forgotten.
 
-**"Bold refactoring"** - Fix inefficiency now; propose large refactors as next phase if scope exceeds.
+**"Bold refactoring"** - Fix inefficiency now. Propose large refactors as next phase if scope exceeds.
 
-**"Critical review"** - Every step open to questioning and improvement.
+## Integration: Claude & Official Plugins
 
-## Integration: /iyu:issue
+iyu:run **leverages** Claude's capabilities and official plugins:
 
-During execution:
-- Bug discovered → `/iyu:issue` root cause analysis
-- Pattern found → Check similar across codebase
-- Scope exceeded → Document for future phase
+| Situation | Leverage |
+|-----------|----------|
+| Bug discovered | `/iyu:issue` framework for root cause analysis |
+| Code writing | Claude's native ability (no extra instructions needed) |
+| Code review needed | `feature-dev:code-reviewer` agent available |
+| Commit | `/commit` or built-in commit phase |
+| PR creation | `/commit-push-pr` available |
 
 ## Input Modes
 
@@ -34,9 +37,9 @@ During execution:
 /iyu:run
 ```
 1. Scan ROADMAP.md for next pending phase
-2. If no pending phases → **EXIT** with "All phases complete"
+2. If no pending phases → EXIT "All phases complete"
 3. Extract tasks from phase scope
-4. Execute with full workflow
+4. Execute full workflow
 
 ### Mode B: With Input (Input-Driven)
 ```bash
@@ -44,141 +47,58 @@ During execution:
 /iyu:run "Fix memory leak in worker threads"
 ```
 1. Parse input as task description
-2. Derive scope and tasks from input
+2. Derive scope and tasks
 3. Check philosophy alignment
-4. Execute with full workflow
-5. Update roadmap if applicable
+4. Execute full workflow
 
-**Flags** (both modes):
+**Flags**:
 - `--dry-run`: Plan only, no execution
 - `--no-commit`: Execute but skip commit
 
-## Pre-Execution Context
+## Process
 
-**Required** (check in order):
-1. **ROADMAP.md** / **docs/roadmap.md** - Phase definitions
-2. **CLAUDE.md** - Project philosophy
-3. **README.md** - Fallback
-
-**Mode A without roadmap**:
-```
-No roadmap found. No pending work detected.
-Provide task description or create ROADMAP.md.
-```
-→ EXIT
-
-**Mode B without roadmap**: Proceed with input-driven execution (roadmap optional).
-
----
-
-## Execution Flow
+### Phase 1: Roadmap Scan
 
 ```
-SCAN → EXTRACT → ALIGN → PLAN → EXECUTE → REVIEW → CLEANUP → COMMIT
+Check ROADMAP.md or docs/roadmap.md
+Phase status: [ ] pending, [x] done, [~] in-progress
 ```
-
----
-
-### PHASE 1: ROADMAP SCAN
-
-**Objective**: Identify next actionable phase.
-
-**Actions**:
-1. Read roadmap file
-2. Parse phase statuses: `[ ]` pending, `[x]` done, `[~]` in-progress
-3. Find first incomplete phase
-4. Extract phase scope and success criteria
 
 **Output**:
 ```
-ROADMAP SCAN
-+------------------+------------------------------------------------+
-| Roadmap Source   | [file path]                                    |
-| Total Phases     | [N]                                            |
-| Completed        | [M] ([percentage]%)                            |
-| Next Phase       | [phase name/number]                            |
-+------------------+------------------------------------------------+
-| Phase Title      | [title]                                        |
-| Description      | [brief description]                            |
-| Success Criteria | [measurable outcomes]                          |
-+------------------+------------------------------------------------+
-| Status           | [READY / BLOCKED / NONE_PENDING]               |
-+------------------+------------------------------------------------+
+ROADMAP: [file path]
+Next Phase: [phase name]
+Status: [READY / BLOCKED / NONE_PENDING]
 ```
 
-**If NONE_PENDING**:
-```
-All phases complete. No pending work found.
-Consider:
-- Adding new phases to roadmap
-- Running maintenance tasks
-- Reviewing overall project status
-```
-→ EXIT
+- **NONE_PENDING**: All phases complete → EXIT
+- **BLOCKED**: Dependency not met → EXIT
 
-**If BLOCKED**:
-```
-Next phase blocked by: [dependency]
-Cannot proceed until: [condition]
-```
-→ EXIT
+### Phase 2: Task Extraction
 
----
+Break phase scope into concrete tasks:
 
-### PHASE 2: TASK EXTRACTION
+1. Derive implementation tasks
+2. Research unfamiliar territory with WebSearch
+3. Identify task dependencies
+4. Estimate complexity (S/M/L)
 
-**Objective**: Derive concrete, actionable tasks from phase scope.
-
-**Actions**:
-1. Break down phase into implementation tasks
-2. Research if unfamiliar territory (WebSearch)
-3. Identify dependencies between tasks
-4. Estimate complexity per task
-
-**Research Triggers** (auto-activate):
+**Research Triggers** (auto):
 - New technology/pattern not in codebase
-- Phase mentions "best practice", "modern", "latest"
+- Mentions "best practice", "modern", "latest"
 - External integration required
-- Security/performance critical work
+- Security/performance critical
 
-**Output**:
-```
-TASK EXTRACTION
-+------------------+------------------------------------------------+
-| Phase            | [phase name]                                   |
-| Tasks Derived    | [N]                                            |
-| Research Done    | [Yes: topic / No]                              |
-+------------------+------------------------------------------------+
+### Phase 3: Philosophy Alignment
 
-TASK BREAKDOWN
-+----+------------------+------------+------------------+
-| #  | Task             | Complexity | Dependencies     |
-+----+------------------+------------+------------------+
-| 1  | [task name]      | [S/M/L]    | [none / #N]      |
-| 2  | [task name]      | [S/M/L]    | [#1]             |
-| ...                                                   |
-+----+------------------+------------+------------------+
+Evaluate each task against CLAUDE.md:
 
-EXECUTION ORDER
-1. [task] - [brief reason for order]
-2. [task] - [brief reason]
-...
-```
-
----
-
-### PHASE 3: PHILOSOPHY ALIGNMENT
-
-**Objective**: Gate execution based on project philosophy fit.
-
-**Actions**:
-1. Load CLAUDE.md / README.md
-2. Score each task against:
-   - Core mission fit (1-5)
-   - Scope boundaries (1-5)
-   - Architecture patterns (1-5)
-   - Naming/style conventions (1-5)
-3. Determine overall verdict
+| Dimension | Score 1-5 |
+|-----------|-----------|
+| Core Mission Fit | Serves core purpose? |
+| Scope Boundaries | Within scope? |
+| Architecture Patterns | Consistent with patterns? |
+| Naming/Style | Follows conventions? |
 
 **Decision Matrix**:
 ```
@@ -189,375 +109,154 @@ Mission MED  | ADAPT           | PARTIAL         |
 Mission LOW  | PARTIAL         | REJECT          |
 ```
 
-**Verdicts**:
-| Verdict | Meaning | Action |
-|---------|---------|--------|
-| **PROCEED** | 철학 일치 | 전체 태스크 실행 |
-| **ADAPT** | 변경 수용 | 조정 후 실행 (방향/범위 수정) |
-| **PARTIAL** | 부분 수용 | 일부 태스크만 실행, 나머지 제외 |
-| **REJECT** | 실행 거부 | EXIT - 철학 위배로 진행 불가 |
+- **PROCEED**: Execute all tasks
+- **ADAPT**: Execute with adjustments
+- **PARTIAL**: Execute some, exclude others
+- **REJECT**: EXIT - Philosophy violation
 
-**Output**:
-```
-PHILOSOPHY ALIGNMENT
-+------------------+------------------------------------------------+
-| Source           | [CLAUDE.md / README.md / None]                 |
-+------------------+------------------------------------------------+
+### Phase 4: Planning
 
-TASK ALIGNMENT
-+------------------+-------+-------+------------------------------------+
-| Task             | Mission | Scope | Notes                            |
-+------------------+-------+-------+------------------------------------+
-| [task 1]         | 5     | 5     | Core mission, in scope           |
-| [task 2]         | 4     | 3     | Aligned but stretches boundary   |
-| [task 3]         | 2     | 1     | Out of scope, mission conflict   |
-+------------------+-------+-------+------------------------------------+
-
-VERDICT: [PROCEED / ADAPT / PARTIAL / REJECT]
-+------------------+------------------------------------------------+
-| Rationale        | [1-2 sentence explanation]                     |
-+------------------+------------------------------------------------+
-```
-
-**If ADAPT**:
-```
-ADAPTATIONS REQUIRED
-- [task N]: [original] → [adjusted approach]
-- [task M]: [scope narrowing or direction change]
-
-Proceed with adaptations? [Y/n]
-```
-
-**If PARTIAL**:
-```
-PARTIAL EXECUTION
-INCLUDED (philosophy-aligned):
-- [task 1]: [reason]
-- [task 2]: [reason]
-
-EXCLUDED (philosophy conflict):
-- [task 3]: [conflict reason] → Consider for separate discussion
-- [task 4]: [out of scope] → May fit different project
-
-Proceed with partial scope? [Y/n]
-```
-
-**If REJECT**:
-```
-================================================================
-                    EXECUTION REJECTED
-================================================================
-Requested work conflicts with project philosophy.
-
-CONFLICTS:
-- [Conflict 1]: [explanation]
-- [Conflict 2]: [explanation]
-
-ALTERNATIVES:
-- [What would be acceptable instead]
-- [How to reframe the request]
-
-Cannot proceed. Please revise scope or update project philosophy.
-================================================================
-```
-→ EXIT
-
----
-
-### PHASE 4: PLANNING
-
-**Objective**: Create detailed execution plan.
-
-**Actions**:
-1. Compile tasks with adjustments
-2. Define per-task acceptance criteria
-3. Identify files to create/modify
-4. Note potential risks
-
-**Output**:
 ```
 EXECUTION PLAN
-+------------------+------------------------------------------------+
-| Phase            | [phase name]                                   |
-| Tasks            | [N]                                            |
-| Est. Files       | [M files to modify/create]                     |
-+------------------+------------------------------------------------+
+- Phase: [name]
+- Tasks: [N]
+- Files: [M files to modify/create]
 
-DETAILED PLAN
-+----+------------------+----------------------------------+----------+
-| #  | Task             | Deliverables                     | Criteria |
-+----+------------------+----------------------------------+----------+
-| 1  | [task]           | - [file/feature]                 | [done if]|
-|    |                  | - [file/feature]                 |          |
-+----+------------------+----------------------------------+----------+
-| ...                                                                  |
-+----------------------------------------------------------------------+
+TASKS
+1. [task] - [deliverables] - [criteria]
+2. [task] - [deliverables] - [criteria]
 
-RISKS & MITIGATIONS
-- [Risk 1]: [mitigation approach]
-
-READY TO EXECUTE: [YES / NO - reason]
+RISKS
+- [risk]: [mitigation]
 ```
 
-**If --dry-run**: Output plan and EXIT
+**If --dry-run, stop here**
 
----
+### Phase 5: Execution
 
-### PHASE 5: EXECUTION
+**Track progress with TodoWrite** (required)
 
-**Objective**: Implement planned tasks with root-cause focus.
+Per-task loop:
+1. Execute task
+2. Test after changes
+3. Mark complete
 
-**Actions**:
-1. Use TodoWrite to track progress
-2. Execute tasks in order
-3. Run tests after each significant change
-4. Document decisions made during implementation
+**Root Cause Mindset** (apply during execution):
+- Problem encountered? → Ask "why" 5 times
+- Tempted by quick fix? → Resist. Find root cause.
+- Pattern detected? → Check elsewhere with Grep/Glob
+- Tech debt spotted? → Fix now or register immediate follow-up
 
-**Root Cause Mindset** (apply throughout):
-- Problem encountered? → Ask "why" 5 times before fixing
-- Quick fix tempting? → Resist. Find underlying cause.
-- Pattern detected? → Check if exists elsewhere (use Grep/Glob)
-- Tech debt spotted? → Fix now or log for immediate follow-up
-
-**Issue Integration**:
-When bug/defect discovered during execution:
+**When bug discovered**:
 1. Pause current task
 2. Apply `/iyu:issue` root cause analysis framework:
    - Symptom isolation
    - Hypothesis generation
-   - Evidence gathering (Grep/Glob/Read)
+   - Evidence gathering
    - Similar pattern detection
-3. Fix ALL instances found, not just the triggering one
+3. Fix **all instances**, not just the trigger
 4. Resume task
 
-**Per-Task Loop**:
+### Phase 6: Critical Review
+
+Verify implementation quality:
+
 ```
-EXECUTING: [Task N] - [task name]
-+------------------+------------------------------------------------+
-| Status           | [In Progress / Completed / Blocked]            |
-| Files Modified   | [list]                                         |
-| Tests            | [Passed / Failed / N/A]                        |
-| Issues Found     | [N - all resolved / M pending]                 |
-| Patterns Fixed   | [N locations] (if applicable)                  |
-| Notes            | [decisions, deviations, discoveries]           |
-+------------------+------------------------------------------------+
-```
-
-**If task blocked/failed**:
-- Analyze root cause (not just symptom)
-- Attempt fundamental fix
-- If requires large refactoring → Document, propose as next phase
-- If unresolvable: pause, report full analysis, ask user
-
----
-
-### PHASE 6: CRITICAL REVIEW
-
-**Objective**: Verify implementation quality and completeness.
-
-**Actions**:
-1. Review all changes against acceptance criteria
-2. Check for introduced issues:
-   - Test failures
-   - Lint/type errors
-   - Unused code
-   - Missing documentation
-3. Identify improvement opportunities
-4. Self-critique: what could be better?
-
-**Output**:
-```
-CRITICAL REVIEW
-+------------------+------------------------------------------------+
-| Tasks Completed  | [N/M]                                          |
-| Tests Status     | [All passing / N failures]                     |
-| Build Status     | [Success / Failure]                            |
-+------------------+------------------------------------------------+
+REVIEW
+- Tasks: [N/M completed]
+- Tests: [All passing / N failures]
+- Build: [Success / Failure]
 
 CRITERIA CHECK
-+------------------+--------+------------------------------------+
-| Task             | Met?   | Notes                              |
-+------------------+--------+------------------------------------+
-| [task 1]         | YES    |                                    |
-| [task 2]         | PARTIAL| [what's missing]                   |
-+------------------+--------+------------------------------------+
+- [task 1]: [MET / PARTIAL / NOT MET]
+- [task 2]: [MET / PARTIAL / NOT MET]
 
 ISSUES FOUND
-- [Issue 1]: [severity] - [fix required]
-- [Issue 2]: [severity] - [fix required]
-
-IMPROVEMENT OPPORTUNITIES
-- [Could enhance X by Y - not blocking]
+- [issue]: [severity] - [fix needed]
 
 TECH DEBT AUDIT
-+------------------+--------+------------------------------------+
-| Item             | Action | Rationale                          |
-+------------------+--------+------------------------------------+
-| [debt item]      | FIXED  | [how it was resolved]              |
-| [debt item]      | DEFER  | [why + proposed phase]             |
-+------------------+--------+------------------------------------+
+- [item]: [FIXED / DEFERRED to Phase X]
 
 REFACTORING PROPOSALS (if scope exceeded)
-+------------------+------------------------------------------------+
-| Proposal         | [Title]                                        |
-| Scope            | [files/modules affected]                       |
-| Rationale        | [why this refactoring is needed]               |
-| Suggested Phase  | [Next / Phase N+2 / Dedicated refactor phase]  |
-+------------------+------------------------------------------------+
-
-SELF-CRITIQUE
-- [What could have been done better]
-- [Lessons for next phase]
-
-VERDICT: [APPROVED / NEEDS_FIXES / REWORK_REQUIRED]
+- [proposal]: [scope] - [suggested phase]
 ```
 
-**If NEEDS_FIXES**: Loop back to EXECUTION for fixes
-**If REWORK_REQUIRED**: Significant issues, reassess plan
-**If REFACTORING_PROPOSED**: Add to roadmap before proceeding
+- **NEEDS_FIXES**: Return to Execution for fixes
+- **REWORK_REQUIRED**: Reassess plan
 
----
+### Phase 7: Cleanup
 
-### PHASE 7: CLEANUP
+1. **Documentation**: Update README, CHANGELOG, ROADMAP
+2. **Code Hygiene**: Remove debug code, unused imports
+3. **Consolidation**: Clean up duplicate documentation
 
-**Objective**: Ensure codebase cleanliness post-implementation.
-
-**Actions**:
-1. **Documentation**:
-   - Update README if public API changed
-   - Update CHANGELOG.md
-   - Update ROADMAP.md (mark phase complete)
-   - Remove/update obsolete docs
-
-2. **Code Hygiene**:
-   - Remove debug code
-   - Remove unused imports
-   - Format code
-   - Remove temporary files
-
-3. **Consolidation**:
-   - Merge related docs if fragmented
-   - Remove duplicate documentation
-   - Verify cross-references
-
-**Output**:
-```
-CLEANUP SUMMARY
-+------------------+------------------------------------------------+
-| Docs Updated     | [list: README, CHANGELOG, ROADMAP, etc.]       |
-| Docs Removed     | [list of obsolete docs removed]                |
-| Files Cleaned    | [list of files cleaned]                        |
-| Temp Files       | [N removed]                                    |
-+------------------+------------------------------------------------+
-
-ROADMAP STATUS
-- [x] [Phase N]: [phase name] - COMPLETED
-- [ ] [Phase N+1]: [next phase name]
-```
-
----
-
-### PHASE 8: COMMIT
-
-**Objective**: Create clean, meaningful commit.
-
-**Actions**:
-1. Stage relevant changes
-2. Craft commit message (phase-based)
-3. Bump version if warranted (MINOR or BUILD only)
-4. Commit
+### Phase 8: Commit
 
 **Version Rules**:
 - **NEVER bump MAJOR** - Breaking changes require explicit user decision
-- **MINOR**: New feature, significant enhancement
-- **BUILD/PATCH**: Bug fixes, small improvements, internal changes
+- **MINOR**: New feature, major enhancement
+- **PATCH**: Bug fix, small improvement
 
-**Output**:
 ```
 COMMIT
-+------------------+------------------------------------------------+
-| Staged Files     | [N files]                                      |
-| Version Bump     | [None / MINOR: X.Y.0 → X.Y+1.0 / BUILD: X.Y.Z+1]|
-+------------------+------------------------------------------------+
-
-COMMIT MESSAGE
-────────────────────────────────────────────────────────────────────
-[type]: [brief description]
-
-[Phase N]: [phase name]
-
-Changes:
-- [change 1]
-- [change 2]
-
-[optional: breaking changes, migration notes]
-────────────────────────────────────────────────────────────────────
-
-STATUS: [COMMITTED / SKIPPED (--no-commit)]
+- Files: [N staged]
+- Version: [None / MINOR / PATCH]
+- Message: [type]: [description]
 ```
 
----
+**Or** use `/commit` plugin.
 
-## Final Report
+## Output Format
 
 ```
 ================================================================
                  DEVELOPMENT PHASE COMPLETE
 ================================================================
-Phase: [phase name]
-Duration: [start → end time if trackable]
-================================================================
+Phase: [name]
 
 SUMMARY
-+------------------+------------------------------------------------+
-| Tasks Completed  | [N/M]                                          |
-| Files Changed    | [+N -M modified]                               |
-| Tests            | [All passing]                                  |
-| Version          | [X.Y.Z → X.Y.Z']                               |
-| Commit           | [hash] or [skipped]                            |
-+------------------+------------------------------------------------+
++------------------+--------------------------------------------+
+| Tasks            | [N/M completed]                            |
+| Files Changed    | [+N -M modified]                           |
+| Tests            | [All passing]                              |
+| Version          | [X.Y.Z → X.Y.Z']                           |
+| Commit           | [hash] or [skipped]                        |
++------------------+--------------------------------------------+
 
 DELIVERABLES
-- [Deliverable 1]
-- [Deliverable 2]
+- [deliverable 1]
+- [deliverable 2]
 
 NEXT PHASE
-+------------------+------------------------------------------------+
-| Phase            | [next phase name or "None remaining"]          |
-| Ready            | [Yes / No - blockers]                          |
-+------------------+------------------------------------------------+
++------------------+--------------------------------------------+
+| Phase            | [next name or "None remaining"]            |
+| Ready            | [Yes / No - blockers]                      |
++------------------+--------------------------------------------+
 
 LESSONS LEARNED
-- [Insight for future phases]
+- [insight for future phases]
 ================================================================
 ```
 
----
-
-## Error Handling
-
-**No roadmap + no input**: EXIT - nothing to do
-**No pending phases**: EXIT - all complete
-**Task failure**: Log, attempt recovery, report if unresolvable
-**Test failure**: Block commit, require fix
-**Git issues**: Report status, suggest manual resolution
-
----
-
-## Examples
+## Quick Reference
 
 ```bash
-# Mode A: Auto-detect next phase from roadmap
+# Auto-execute next roadmap phase
 /iyu:run
 
-# Mode B: Input-driven task
+# Execute specific task
 /iyu:run "Implement user authentication with JWT"
-/iyu:run "Refactor database layer for connection pooling"
 
-# Plan only (both modes)
+# Plan only (no execution)
 /iyu:run --dry-run
-/iyu:run "Add rate limiting" --dry-run
 
 # Execute without commit
 /iyu:run --no-commit
 ```
+
+## Error Handling
+
+- **No roadmap + no input**: EXIT - nothing to do
+- **No pending phases**: EXIT - all complete
+- **Task failure**: Log, attempt recovery, report if unresolvable
+- **Test failure**: Block commit, require fix
