@@ -18,15 +18,18 @@ A collection of Claude Code plugins for library maintainers and developers.
 
 ## Available Plugins
 
-### iyu
+### iyu (v1.4.0)
 
-**Iyulab's productivity toolkit for library maintainers and developers**
+**Iyulab's productivity toolkit - roadmap-driven development, issue triage, PR review, and deep bug resolution**
 
-| Component | Type | Activation |
-|-----------|------|------------|
-| Issue Triage | Skill | Auto (conversational) |
-| Issue Analyzer | Agent | Auto (URL analysis) |
-| `/iyu:issue` | Command | Manual (explicit call) |
+| Component | Type | Activation | Description |
+|-----------|------|------------|-------------|
+| Issue & PR Triage | Skill | Auto (conversational) | Natural language triage advice |
+| Issue Analyzer | Agent | Auto (URL analysis) | Autonomous issue analysis |
+| PR Reviewer | Agent | Auto (PR URL) | Autonomous PR review |
+| `/iyu:issue` | Command | Manual | Full issue triage report |
+| `/iyu:pr` | Command | Manual | Professional PR review |
+| `/iyu:run` | Command | Manual | Roadmap-driven development |
 
 #### Installation
 
@@ -36,42 +39,81 @@ A collection of Claude Code plugins for library maintainers and developers.
 
 #### Skills (Auto-Activated)
 
-The plugin automatically activates when you discuss issue evaluation. Just ask naturally:
+The plugin automatically activates when you discuss issue evaluation or PR review. Just ask naturally:
 
 - "Should I accept this feature request?"
 - "How should I respond to this issue?"
 - "Is this in scope for my project?"
 - "Help me triage this pull request"
+- "Review this PR for me"
+- "Find similar bugs in the codebase"
 
 #### Commands
 
 | Command | Description |
 |---------|-------------|
-| `/iyu:issue` | Systematic issue evaluation with 7-phase workflow |
+| `/iyu:issue` | Systematic issue evaluation with root cause analysis |
+| `/iyu:pr` | Professional PR review with security awareness |
+| `/iyu:run` | Roadmap-driven development execution |
 
-##### /iyu:issue Usage
+##### /iyu:issue
 
 ```bash
 # Triage a GitHub issue
 /iyu:issue https://github.com/user/repo/issues/123
 
-# Quick decision only (skip execution phases)
+# Quick decision only
 /iyu:issue https://github.com/user/repo/issues/123 --quick
 
 # Triage and save report
 /iyu:issue ./docs/feature-request.md --save
-
-# Triage from text
-/iyu:issue "User requests adding feature X..."
 ```
 
-#### Decision Matrix
+##### /iyu:pr
+
+```bash
+# Full PR review
+/iyu:pr https://github.com/user/repo/pull/123
+
+# Quick review (critical issues only)
+/iyu:pr https://github.com/user/repo/pull/123 --quick
+
+# Security-focused review
+/iyu:pr https://github.com/user/repo/pull/123 --security-focus
+```
+
+##### /iyu:run
+
+```bash
+# Auto-detect next phase from roadmap
+/iyu:run
+
+# Input-driven task execution
+/iyu:run "Implement caching layer for API"
+
+# Plan only, no execution
+/iyu:run --dry-run
+```
+
+#### Decision Matrices
+
+**Issue Triage:**
 
 | | Philosophy Aligned | Philosophy Misaligned |
 |---|---|---|
 | **High Feasibility** | ✅ ACCEPT | ↗️ REDIRECT |
 | **Medium Feasibility** | 🔄 ADAPT | ⏳ DEFER / ↗️ REDIRECT |
 | **Low Feasibility** | ⏳ DEFER | ❌ DECLINE |
+
+**PR Review:**
+
+| Severity | Meaning |
+|----------|---------|
+| 🔴 Blocker | Must fix before merge |
+| 🟠 Major | Should fix, or maintainer fixes post-merge |
+| 🟡 Minor | Nice to have, non-blocking |
+| 🟢 Nitpick | Optional style preference |
+| ✨ Praise | Celebrate good work |
 
 [Read more about iyu plugin](./plugins/iyu/README.md)
 
