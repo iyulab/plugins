@@ -169,15 +169,33 @@ EXECUTION ORDER
 
 ### PHASE 3: PHILOSOPHY ALIGNMENT
 
-**Objective**: Validate planned work against project principles.
+**Objective**: Gate execution based on project philosophy fit.
 
 **Actions**:
 1. Load CLAUDE.md / README.md
-2. Check each task against:
-   - Layer separation guidelines
-   - Scope boundaries
-   - Architecture patterns
-   - Naming conventions
+2. Score each task against:
+   - Core mission fit (1-5)
+   - Scope boundaries (1-5)
+   - Architecture patterns (1-5)
+   - Naming/style conventions (1-5)
+3. Determine overall verdict
+
+**Decision Matrix**:
+```
+             | Scope IN        | Scope OUT       |
+-------------|-----------------|-----------------|
+Mission HIGH | PROCEED         | ADAPT           |
+Mission MED  | ADAPT           | PARTIAL         |
+Mission LOW  | PARTIAL         | REJECT          |
+```
+
+**Verdicts**:
+| Verdict | Meaning | Action |
+|---------|---------|--------|
+| **PROCEED** | 철학 일치 | 전체 태스크 실행 |
+| **ADAPT** | 변경 수용 | 조정 후 실행 (방향/범위 수정) |
+| **PARTIAL** | 부분 수용 | 일부 태스크만 실행, 나머지 제외 |
+| **REJECT** | 실행 거부 | EXIT - 철학 위배로 진행 불가 |
 
 **Output**:
 ```
@@ -186,25 +204,63 @@ PHILOSOPHY ALIGNMENT
 | Source           | [CLAUDE.md / README.md / None]                 |
 +------------------+------------------------------------------------+
 
-ALIGNMENT CHECK
-+------------------+--------+------------------------------------+
-| Task             | Status | Notes                              |
-+------------------+--------+------------------------------------+
-| [task 1]         | OK     | [fits X guideline]                 |
-| [task 2]         | ADJUST | [needs: specific adjustment]       |
-| [task 3]         | RISK   | [potential scope creep - why]      |
-+------------------+--------+------------------------------------+
+TASK ALIGNMENT
++------------------+-------+-------+------------------------------------+
+| Task             | Mission | Scope | Notes                            |
++------------------+-------+-------+------------------------------------+
+| [task 1]         | 5     | 5     | Core mission, in scope           |
+| [task 2]         | 4     | 3     | Aligned but stretches boundary   |
+| [task 3]         | 2     | 1     | Out of scope, mission conflict   |
++------------------+-------+-------+------------------------------------+
 
-ADJUSTMENTS REQUIRED
-- [task N]: [what to change and why]
-
-OVERALL: [ALIGNED / NEEDS_ADJUSTMENT / MISALIGNED]
+VERDICT: [PROCEED / ADAPT / PARTIAL / REJECT]
++------------------+------------------------------------------------+
+| Rationale        | [1-2 sentence explanation]                     |
++------------------+------------------------------------------------+
 ```
 
-**If MISALIGNED**:
-- List conflicts
-- Suggest alternatives
-- Ask user: proceed anyway / adjust / abort
+**If ADAPT**:
+```
+ADAPTATIONS REQUIRED
+- [task N]: [original] → [adjusted approach]
+- [task M]: [scope narrowing or direction change]
+
+Proceed with adaptations? [Y/n]
+```
+
+**If PARTIAL**:
+```
+PARTIAL EXECUTION
+INCLUDED (philosophy-aligned):
+- [task 1]: [reason]
+- [task 2]: [reason]
+
+EXCLUDED (philosophy conflict):
+- [task 3]: [conflict reason] → Consider for separate discussion
+- [task 4]: [out of scope] → May fit different project
+
+Proceed with partial scope? [Y/n]
+```
+
+**If REJECT**:
+```
+================================================================
+                    EXECUTION REJECTED
+================================================================
+Requested work conflicts with project philosophy.
+
+CONFLICTS:
+- [Conflict 1]: [explanation]
+- [Conflict 2]: [explanation]
+
+ALTERNATIVES:
+- [What would be acceptable instead]
+- [How to reframe the request]
+
+Cannot proceed. Please revise scope or update project philosophy.
+================================================================
+```
+→ EXIT
 
 ---
 
