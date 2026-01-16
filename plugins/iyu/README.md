@@ -2,7 +2,7 @@
 
 [![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet?logo=anthropic&logoColor=white)](https://docs.anthropic.com/en/docs/claude-code/plugins)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](./plugin.json)
+[![Version](https://img.shields.io/badge/version-1.4.0-blue.svg)](./plugin.json)
 
 Iyulab's productivity toolkit for library maintainers and developers.
 
@@ -35,8 +35,23 @@ This plugin provides comprehensive issue triage, PR review, and bug resolution:
 | **Issue & PR Triage** | Skill | Automatic | Conversational analysis and advice |
 | `/iyu:issue` | Command | Manual | Full formatted issue triage report |
 | `/iyu:pr` | Command | Manual | Professional PR review with security focus |
+| `/iyu:run` | Command | Manual | Roadmap-driven development execution |
 | **Issue Analyzer** | Agent | Automatic | Autonomous issue analysis |
 | **PR Reviewer** | Agent | Automatic | Autonomous PR review |
+
+### New in v1.4.0: Development Phase Runner
+
+Autonomous development execution with roadmap integration:
+
+1. **Dual Input Mode** - Auto-detect from roadmap OR use provided task description
+2. **Philosophy Alignment** - Every change validated against project principles
+3. **Root Cause Focus** - No surface fixes, solve underlying problems
+4. **Bold Refactoring** - Fix inefficiencies; propose large refactors as next phase
+
+| Mode | Trigger | Behavior |
+|------|---------|----------|
+| Roadmap-driven | `/iyu:run` (no input) | Scan ROADMAP.md, execute next pending phase |
+| Input-driven | `/iyu:run "task"` | Derive scope from input, execute |
 
 ### New in v1.3.0: Professional PR Review
 
@@ -139,8 +154,6 @@ Use this command when you need a complete, structured triage report.
 
 **Professional PR review with security awareness and human-friendly feedback**
 
-Use this command for thorough, community-nurturing PR reviews.
-
 ```bash
 # Full PR review
 /iyu:pr https://github.com/user/repo/pull/123
@@ -148,11 +161,8 @@ Use this command for thorough, community-nurturing PR reviews.
 # Quick review - critical issues only
 /iyu:pr https://github.com/user/repo/pull/123 --quick
 
-# Security-focused review (detailed vulnerability scan)
+# Security-focused review
 /iyu:pr https://github.com/user/repo/pull/123 --security-focus
-
-# Review and save report
-/iyu:pr #42 --save
 ```
 
 **PR Review Workflow**:
@@ -205,10 +215,36 @@ Phases in brackets are conditionally executed:
 - **REDIRECT**: Out of scope, provide alternatives
 - **DECLINE**: Fundamentally misaligned, explain why
 
-**Output**:
-1. **Triage Report**: Complete analysis with scores and reasoning
-2. **Knowledge Updates**: Project documentation updates
-3. **Response Draft**: Professional reply ready to post
+### /iyu:run
+
+**Roadmap-driven or input-driven development execution**
+
+```bash
+# Auto-detect next phase from roadmap
+/iyu:run
+
+# Input-driven task execution
+/iyu:run "Implement caching layer for API"
+/iyu:run "Fix memory leak in worker threads"
+
+# Plan only, no execution
+/iyu:run --dry-run
+
+# Execute without commit
+/iyu:run --no-commit
+```
+
+**Execution Flow**:
+```
+SCAN → EXTRACT → ALIGN → PLAN → EXECUTE → REVIEW → CLEANUP → COMMIT
+```
+
+**Key Features**:
+- Philosophy alignment check before execution
+- Root cause focus (no surface fixes)
+- Similar pattern detection across codebase
+- Auto version bump (MINOR/BUILD only, never MAJOR)
+- Integration with `/iyu:issue` for bugs discovered during execution
 
 ## Best Practices
 
@@ -252,7 +288,8 @@ iyu/
 │   └── plugin.json
 ├── commands/
 │   ├── issue.md                              # Issue triage command
-│   └── pr.md                                 # PR review command (NEW in v1.3.0)
+│   ├── pr.md                                 # PR review command
+│   └── run.md                                # Development runner (NEW in v1.4.0)
 ├── agents/
 │   ├── issue-analyzer.md                     # Issue analysis agent
 │   └── pr-reviewer.md                        # PR review agent (NEW in v1.3.0)
