@@ -2,7 +2,7 @@
 
 [![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet?logo=anthropic&logoColor=white)](https://docs.anthropic.com/en/docs/claude-code/plugins)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.4.0-blue.svg)](./plugin.json)
+[![Version](https://img.shields.io/badge/version-1.4.1-blue.svg)](./plugin.json)
 
 Iyulab's productivity toolkit for library maintainers and developers.
 
@@ -15,6 +15,19 @@ Iyulab's productivity toolkit for library maintainers and developers.
 **"Accept and improve > Reject and explain"** - When feasible, merge and fix minor issues yourself. Lower contribution barriers.
 
 **"Fix N, Prevent M"** - When resolving a bug (N), automatically detect and fix similar latent defects (M) across your codebase.
+
+## Mindset: Critical but Constructive
+
+All IYU commands share a common mindset—**passionate, skeptical, but welcoming**:
+
+| Principle | Meaning |
+|-----------|---------|
+| **Validate before execute** | Never accept commands/requests at face value. Question, analyze, then act. |
+| **1 → 10 thinking** | From one request, derive ten implications. What's implied? What's missing? |
+| **Proactive research** | When uncertain, research first. Use WebSearch for best practices and patterns. |
+| **Be your own QA** | Test, verify, simulate. Don't wait for failures—anticipate them. |
+| **Defend the architecture** | Protect project coherence. A "no" today prevents tech debt tomorrow. |
+| **Educate, don't dismiss** | When declining, teach. Help others understand the "why". |
 
 ## Installation
 
@@ -39,7 +52,17 @@ This plugin provides comprehensive issue triage, PR review, and bug resolution:
 | **Issue Analyzer** | Agent | Automatic | Autonomous issue analysis |
 | **PR Reviewer** | Agent | Automatic | Autonomous PR review |
 
-### New in v1.4.0: Development Phase Runner
+### New in v1.4.1: Critical but Constructive Mindset
+
+All commands now include a shared mindset framework:
+
+1. **Command Validation (Phase 0)** - `/iyu:run` validates commands before execution
+2. **Internal Consistency Check** - Detect contradictions and ambiguities
+3. **Historical Coherence** - Check for conflicts with recent work
+4. **Implicit Requirement Extraction** - Derive 10 tasks from 1 command
+5. **Risk Simulation** - Anticipate failures before they happen
+
+### v1.4.0: Development Phase Runner
 
 Autonomous development execution with roadmap integration:
 
