@@ -47,13 +47,29 @@ Complete all cycles sequentially **without interruption**.
 
 Must be performed before cycle execution:
 
-### 0.1 Project Context
+### 0.1 Conversation Context Analysis (HIGHEST PRIORITY)
+
+**Before any file exploration, analyze the preceding conversation.**
+
+The user may have already discussed what needs to be done. Look for:
+- Explicit statements like "~을 해야 합니다", "~이 필요합니다", "~을 구현해야 합니다"
+- Discussed features, bugs, improvements, or refactoring plans
+- Agreed-upon next steps or action items
+- Any technical discussion that implies development scope
+
+**If conversation context provides clear scope** → Use it directly. Skip 0.4 (Development Plan Discovery).
+
+**If conversation context is ambiguous** → Use it as a starting hint, then verify against project artifacts.
+
+**If no relevant conversation context** → Proceed to 0.2+.
+
+### 0.2 Project Context
 
 ```bash
 # Understand project principles
 Read: CLAUDE.md (or .claude/CLAUDE.md)
 
-# Understand project structure
+# Understand project structure (only if not already known from conversation)
 LS: project root
 Read: README.md, package.json / Cargo.toml / pyproject.toml / *.csproj (whichever applies)
 ```
@@ -64,7 +80,7 @@ Read: README.md, package.json / Cargo.toml / pyproject.toml / *.csproj (whicheve
 - Architecture principles and coding conventions
 - Tech stack and dependencies
 
-### 0.2 Previous Cycle Logs
+### 0.3 Previous Cycle Logs
 
 ```bash
 # Check previous cycle records
@@ -75,7 +91,7 @@ Glob: claudedocs/cycle-logs/cycle-*.md
 - Review defects/improvements identified in previous cycles
 - Always reference the "Next Cycle Recommendation" section
 
-### 0.3 Current State Assessment
+### 0.4 Current State Assessment
 
 ```bash
 # Check recent changes
@@ -86,21 +102,26 @@ git diff HEAD~5 --stat
 # (run according to project's build system)
 ```
 
-### 0.4 Development Plan Discovery
+### 0.5 Development Plan Discovery
+
+**Only if conversation context did NOT provide clear scope.**
 
 **Search Order** (stop at first found):
-1. CLAUDE.md - Development plan section
-2. ROADMAP.md / roadmap.md
-3. TASKS.md / TODO.md
-4. docs/ - Planning documents
-5. README.md - "Roadmap", "Planned Features" sections
+1. Previous cycle logs - "Next Cycle Recommendation" sections
+2. CLAUDE.md - Development plan section
+3. ROADMAP.md / roadmap.md
+4. TASKS.md / TODO.md
+5. docs/ - Planning documents
+6. README.md - "Roadmap", "Planned Features" sections
 
 ```bash
 Glob: **/ROADMAP.md, **/TASKS.md, **/TODO.md, docs/*.md
 Grep: "## Roadmap|## TODO|## Planned|## Tasks|## Development Plan" in *.md
 ```
 
-### 0.5 Roadmap Establishment
+**If nothing found anywhere**: Ask the user what to work on. Do not invent scope.
+
+### 0.6 Roadmap Establishment
 
 **If a roadmap exists**: Read it and assess current progress.
 
@@ -116,7 +137,8 @@ PREPARATION COMPLETE
 | Role               | [library / app / framework / tool]         |
 | Tech Stack         | [language, key dependencies]               |
 | Previous Cycles    | [N completed / fresh start]                |
-| Roadmap            | [existing / newly created]                 |
+| Scope Source       | [conversation / roadmap / cycle-log / user] |
+| Roadmap            | [existing / newly created / not needed]    |
 | Total Cycles       | [N planned]                                |
 | Starting From      | Cycle [M]                                  |
 +--------------------+--------------------------------------------+
@@ -379,8 +401,12 @@ Create a `claudedocs/cycle-logs/cycle-{NN}.md` file upon each cycle completion.
 ## Issues & Improvements
 {Defects, deficiencies, and improvements identified}
 
+## Pending Human Decisions
+{Items requiring human judgment — architectural choices, breaking changes, ambiguous requirements}
+{If none, write "None"}
+
 ## Next Cycle Recommendation
-{Items for the next cycle}
+{Items for the next cycle, or "No further cycles needed" if no issues found}
 ```
 
 ---
@@ -410,6 +436,12 @@ Upon each cycle completion:
 5. **Research required**: Actively use WebSearch to gather evidence. No guesswork implementations.
 6. **Defend architecture**: Immediately fix any architectural violations made for convenience.
 7. **Honest evaluation**: Never hide defects or inflate scores.
+8. **Early termination**: If a cycle's evaluation produces **zero issues/improvements** in STEP 5, terminate the cycle loop early — even if the total cycle count has not been reached. The project has reached a stable state for now.
+9. **Human judgment deferral**: When a situation requiring human judgment arises (e.g., major architectural decisions, breaking API changes, ambiguous requirements), do NOT stop the cycle. Instead:
+   - Record it in the cycle log under a dedicated **"Pending Human Decisions"** section
+   - Continue with the remaining actionable issues
+   - Accumulate all deferred items across cycles for the user to review at the end
+10. **Conversation context first**: Always check the preceding conversation for scope before searching project files. The user's recent discussion IS the primary input.
 
 ## Integration: Claude & iyu Plugins
 
@@ -454,6 +486,23 @@ NEXT CYCLE
 ================================================================
 ```
 
+## Early Termination Output
+
+When terminating early due to no issues found:
+
+```
+================================================================
+         CYCLES COMPLETE (EARLY TERMINATION at [N] / [Total])
+================================================================
+Reason: No deficiencies, improvements, or defects identified.
+The project has reached a stable state for the current scope.
+
+PENDING HUMAN DECISIONS (if any accumulated across cycles)
+- [HD-01]: [description] — [context/options]
+- [HD-02]: [description] — [context/options]
+================================================================
+```
+
 ## Final Output (All Cycles Complete)
 
 ```
@@ -480,6 +529,10 @@ OVERALL METRICS
 
 OUTSTANDING ISSUES
 - [unresolved issues across all cycles]
+
+PENDING HUMAN DECISIONS
+- [HD-01]: [description] — [context/options]
+- (accumulated across all cycles)
 
 RECOMMENDATIONS
 - [strategic recommendations for future development]
