@@ -1,7 +1,8 @@
 ---
 description: Triage external issues with critical evaluation against project philosophy and scope
 argument-hint: <issue-url | file-path | "issue text"> [--quick] [--save] [--no-research]
-allowed-tools: Read, Glob, Grep, Write, Edit, TodoWrite, WebFetch, WebSearch
+disable-model-invocation: true
+allowed-tools: Read, Glob, Grep, Write, Edit, TodoWrite, WebFetch, WebSearch, Bash
 ---
 
 # Issue Triage Command

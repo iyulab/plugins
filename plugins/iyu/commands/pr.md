@@ -1,6 +1,7 @@
 ---
 description: Review pull requests with project philosophy alignment
 argument-hint: <pr-url | pr-number> [--quick] [--save] [--security-focus]
+disable-model-invocation: true
 allowed-tools: Read, Glob, Grep, Write, Edit, TodoWrite, WebFetch, WebSearch, Bash
 ---
 
